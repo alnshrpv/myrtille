@@ -8,31 +8,39 @@
           </div>
           <div class="product-info">
             <h1 class="product-name">{{ product.name }}</h1>
-            <p class="product-description"> {{ product.description }}</p>
+            <p class="product-description">{{ product.description }}</p>
             <p class="product-sku">ID: {{ product.sku }}</p>
             <p class="product-stock">В наличии: {{ product.stock > 0 ? 'Да' : 'Нет' }}</p>
-            <p class="product-price">{{ product.price }} ₽</p>
+            <div class="price-container">
+              <p v-if="product.originalPrice" class="original-price">{{ product.originalPrice }} ₽</p>
+              <p class="product-price">{{ product.price }} ₽</p>
+            </div>
             <v-btn class="button" @click.stop="addProductToCart(product)">Добавить в корзину</v-btn>
+            <v-btn class="fav" icon @click.stop="toggleFavorite(product)">
+              <v-icon>{{ isFavorite(product) ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
+            </v-btn>
           </div>
         </div>
       </div>
+
       <div class="rew-bg">
         <h3 class="otzv">Отзывы о товаре</h3>
-      <v-row class="reviews-row" justify="center">
-        <div v-for="review in product.reviews" :key="review.id" class="review-card">
-          <div class="review-content">
-            <div class="review-user">
-              <img src="/avatar.png" alt="Avatar" class="user-avatar">
-              <h3>{{ review.name }}</h3>
+        <v-row class="reviews-row" justify="center">
+          <div v-for="review in product.reviews" :key="review.id" class="review-card">
+            <div class="review-content">
+              <div class="review-user">
+                <img src="/avatar.png" alt="Avatar" class="user-avatar">
+                <h3>{{ review.name }}</h3>
+              </div>
+              <div class="review-rating">
+                <v-rating v-model="review.rating" density="compact" readonly></v-rating>
+              </div>
+              <p class="p">{{ review.text }}</p>
             </div>
-            <div class="review-rating">
-              <v-rating v-model="review.rating" density="compact" readonly></v-rating>
-            </div>
-            <p class="p">{{ review.text }}</p>
           </div>
-        </div>
-      </v-row>
-    </div>
+        </v-row>
+      </div>
+
     </v-row>
     <v-snackbar v-model="showPopup" color="white" timeout="3000">
       <v-img :src="popupProduct?.image" style="height: 84px; width: 50px;"></v-img>
@@ -40,9 +48,9 @@
     </v-snackbar>
   </v-container>
 </template>
-  
+
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   name: 'ProductDetail',
@@ -53,11 +61,31 @@ export default {
       product: {}
     };
   },
+  computed: {
+    ...mapGetters(['favoriteItems']),
+    discountPercentage() {
+      if (this.product.originalPrice) {
+        const discount = ((this.product.originalPrice - this.product.price) / this.product.originalPrice) * 100;
+        return discount.toFixed(2);
+      }
+      return 0;
+    }
+  },
   methods: {
-    ...mapActions(['addToCart']),
+    ...mapActions(['addToCart', 'addToFavorites', 'removeFromFavorites']),
     addProductToCart(product) {
       this.addToCart(product);
       this.showPopupMessage(product);
+    },
+    toggleFavorite(product) {
+      if (this.isFavorite(product)) {
+        this.removeFromFavorites(product);
+      } else {
+        this.addToFavorites(product);
+      }
+    },
+    isFavorite(product) {
+      return this.favoriteItems.some(item => item.id === product.id);
     },
     showPopupMessage(product) {
       this.popupProduct = product;
@@ -69,6 +97,115 @@ export default {
     fetchProduct() {
       const productId = this.$route.params.id;
       const products = [
+                {
+            id: 71,
+            name: 'Набор для ухода за волосами',
+            price: '1000',
+            description: 'При покупке кондиционера и шампуня для волос в подарок маска для ухода за волосами на выбор. Выбор происходит на точке выдачи заказа.',
+            image: '/promo/1.png',
+            category: 1,
+            sku: '12345',
+              stock: 10,
+              reviews: [
+    { id: 1, name: 'Ирина', rating: 5, text: 'Отличный набор.' },
+    { id: 2, name: 'Инна', rating: 5, text: 'Очень выгодно.' },
+    { id: 3, name: 'Валентина', rating: 5, text: 'Суперский набор!' }
+  ]
+          },
+          {
+            id: 72,
+            name: 'Косметический набор',
+            price: '1000',
+            description: 'При покупке туши и теней для век в подарок помада на выбор. Выбор происходит на точке выдачи заказа.',
+            image: '/promo/2.png',
+            category: 1,
+            sku: '12345',
+              stock: 10,
+              reviews: [
+    { id: 1, name: 'Валерия', rating: 5, text: 'Отличная акционный набор.' },
+    { id: 2, name: 'Ольга', rating: 4, text: 'Все хорошо, но выбор помад небольшой.' },
+    { id: 3, name: 'Олег', rating: 5, text: 'Жене очень понравился набор.' }
+  ]
+          },
+          {
+            id: 73,
+            name: 'Парфюмерный набор',
+            price: '1000',
+            description: 'При покупке женских и мужских духов любая нишевая парфюмерия в подарок. Выбор происходит на точке выдачи заказа.',
+            image: '/promo/3.png',
+            category: 1,
+            sku: '12345',
+              stock: 10,
+              reviews: [
+    { id: 1, name: 'Ирина', rating: 5, text: 'Отличный набор.' },
+    { id: 2, name: 'Анастасия', rating: 4, text: 'Все хорошо.' },
+    { id: 3, name: 'Владимир', rating: 5, text: 'Все отлично, спасибо.' }
+  ]
+          },
+      {
+  id: 61,
+  name: 'CAUDALIE VINOPERFECT BRIGHTENING MICROPEEL FOAM',
+  originalPrice: '2000',
+  price: '1000',
+  description: 'Очищающий мусс',
+  image: '/sale/1.jpg',
+  category: 1,
+  sku: '12345',
+  stock: 10,
+  reviews: [
+    { id: 1, name: 'Ирина', rating: 5, text: 'Прекрасный мусс, отлично очищает кожу!' },
+    { id: 2, name: 'Екатерина', rating: 4, text: 'Неплохой продукт, но ожидала большего.' },
+    { id: 3, name: 'Олег', rating: 5, text: 'Моя жена в восторге, рекомендуем!' }
+  ]
+},
+{
+  id: 62,
+  name: 'BOBBI BROWN EXTRA PLUMP LIP SERUM',
+  originalPrice: '1500',
+  price: '1000',
+  description: 'Увлажняющая сыворотка',
+  image: '/sale/2.jpg',
+  category: 1,
+  sku: '12345',
+  stock: 10,
+  reviews: [
+    { id: 1, name: 'Анастасия', rating: 5, text: 'Сыворотка прекрасно увлажняет губы!' },
+    { id: 2, name: 'Марина', rating: 3, text: 'Неплохо, но есть и лучше варианты.' },
+    { id: 3, name: 'Дмитрий', rating: 4, text: 'Купил жене, ей понравилось.' }
+  ]
+},
+{
+  id: 63,
+  name: 'CLARINS LIP OIL BALM',
+  originalPrice: '1800',
+  price: '1000',
+  description: 'Оттеночный бальзам для губ',
+  image: '/sale/3.jpg',
+  category: 1,
+  sku: '12345',
+  stock: 10,
+  reviews: [
+    { id: 1, name: 'Светлана', rating: 5, text: 'Очень понравился оттенок и увлажнение!' },
+    { id: 2, name: 'Лариса', rating: 4, text: 'Хороший бальзам, но немного липкий.' },
+    { id: 3, name: 'Валерия', rating: 5, text: 'Отличный продукт, буду заказывать еще!' }
+  ]
+},
+{
+  id: 64,
+  name: 'CLARINS OMBRE 4 COULEURS',
+  originalPrice: '5000',
+  price: '4000',
+  description: 'Четырехцветные тени для век',
+  image: '/sale/4.jfif',
+  category: 2,
+  sku: '12345',
+  stock: 10,
+  reviews: [
+    { id: 1, name: 'Анна', rating: 5, text: 'Прекрасные тени, яркие и стойкие цвета!' },
+    { id: 2, name: 'Елизавета', rating: 4, text: 'Хорошие тени, но дороговаты.' },
+    { id: 3, name: 'Вероника', rating: 5, text: 'Очень довольна покупкой, рекомендую!' }
+  ]
+},
           {
             id: 1,
             name: 'MIXIT RE:START KERATIN BOMB SHAMPOO',
@@ -81,6 +218,51 @@ export default {
               { id: 1, name: 'Алексей', rating: 5, text: 'Отличный шампунь!' },
               { id: 2, name: 'Мария', rating: 4, text: 'Хороший шампунь, но дорого.' },
               { id: 3, name: 'Ольга', rating: 5, text: 'Очень довольна покупкой!' }
+            ]
+          },
+          {
+            id: 51,
+            name: 'ПОДАРОЧНАЯ КАРТА НА 5000₽',
+            price: '5000',
+            description: 'Подарочная карта',
+            image: '/card/1.png',
+            category: 1,
+            sku: '12345',
+              stock: 10,
+              reviews: [
+              { id: 1, name: 'Григорий', rating: 5, text: 'Отличная карта, удобно. Когда не знаешь что подарить то это отличное решение.' },
+              { id: 2, name: 'Ольга', rating: 4, text: 'Удобно, хороший подарок на все случаи жизни.' },
+              { id: 3, name: 'Елена', rating: 5, text: 'Все хорошо.' }
+            ]
+          },
+          {
+            id: 52,
+            name: 'ПОДАРОЧНАЯ КАРТА НА 4000₽',
+            price: '4000',
+            description: 'Подарочная карта',
+            image: '/card/2.png',
+            category: 1,
+            sku: '12345',
+              stock: 10,
+              reviews: [
+              { id: 1, name: 'Алина', rating: 5, text: 'Приятный дизайн.' },
+              { id: 2, name: 'Мария', rating: 4, text: 'Хороший подарок.' },
+              { id: 3, name: 'Оксана', rating: 5, text: 'Отличный подарок.' }
+            ]
+          },
+          {
+            id: 53,
+            name: 'ПОДАРОЧНАЯ КАРТА НА 3000₽',
+            price: '3000',
+            description: 'Подарочная карта',
+            image: '/card/3.png',
+            category: 1,
+            sku: '12345',
+              stock: 10,
+              reviews: [
+              { id: 1, name: 'Владимир', rating: 5, text: 'Отличное решение для подарка.' },
+              { id: 2, name: 'Анастасия', rating: 4, text: 'Все хорошо.' },
+              { id: 3, name: 'Светлана', rating: 5, text: 'Очень довольна картой!' }
             ]
           },
           {
@@ -678,6 +860,18 @@ export default {
 </script>
   
   <style scoped>
+  .original-price {
+  text-decoration: line-through;
+  color: red;
+  margin-right: 10px;
+}
+
+  .fav {
+    width: 50px;
+    margin-left: 20px;
+    background-color: #937fbc;
+    color: aliceblue;
+  }
 
 .span{
     color: #937fbc;
@@ -757,7 +951,7 @@ body {
   margin-top: 20px;
   margin-bottom: 20px;
   display: flex;
-  flex-wrap: wrap; /* Добавляем свойство flex-wrap */
+  flex-wrap: wrap;
   justify-content: center;
 }
 
@@ -770,9 +964,9 @@ body {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin: 10px;
   width: 30%;
-  min-width: 300px; /* Добавляем минимальную ширину для карточек отзывов */
+  min-width: 300px; 
   display: flex;
-  flex-direction: column; /* Изменяем направление флекс-контейнера на вертикальное */
+  flex-direction: column; 
 
 }
 

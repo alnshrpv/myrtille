@@ -1,15 +1,10 @@
 <template>
   <v-app>
-    <!-- Импортированный компонент Header -->
     <HeaderComp />
-
-    <!-- Основной контент -->
     <v-main class="main-container">
       <img :src="bgImg" alt="Background" class="bgImg">
       <router-view></router-view>
     </v-main>
-
-    <!-- Импортированный компонент Footer -->
     <FooterComp />
   </v-app>
 </template>
@@ -18,6 +13,27 @@
 import HeaderComp from './components/HeaderComp.vue';
 import FooterComp from './components/FooterComp.vue';
 
+const resizeObserverErrBack = () => {
+      let resizeObserverError = false;
+      if (resizeObserverError) {
+        return;
+      }
+      const resizeObserver = new ResizeObserver(() => {});
+      const div = document.createElement('div');
+      document.body.appendChild(div);
+      resizeObserver.observe(div);
+      setTimeout(() => {
+        resizeObserver.unobserve(div);
+        document.body.removeChild(div);
+      }, 0);
+      resizeObserverError = true;
+    };
+    resizeObserverErrBack();
+    window.addEventListener('error', (event) => {
+      if (event.message === 'ResizeObserver loop completed with undelivered notifications.') {
+        event.stopImmediatePropagation();
+      }
+    });
 export default {
   name: 'App',
   components: {
@@ -34,28 +50,28 @@ export default {
 
 <style>
 body {
-  font-family: Roboto, sans-serif;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Скрыть прокрутку */
+  overflow: hidden; 
 }
 
-/* Скрыть вертикальную прокрутку */
-body::-webkit-scrollbar {
-  width: 0px;  /* Устанавливает ширину прокрутки на 0 */
-  background: transparent; /* Делает фон прокрутки прозрачным */
+@font-face {
+  font-family: "Phenomena-Light";
+  src: url("~@/font/Phenomena-Light.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
-/* Скрыть горизонтальную прокрутку */
 body::-webkit-scrollbar {
-  height: 0px;  /* Устанавливает высоту прокрутки на 0 */
-  background: transparent; /* Делает фон прокрутки прозрачным */
+  width: 0px;  
+  background: transparent; 
 }
 
 .main-container {
-  margin-top: 50px;
+  margin-top: -100px;
   position: relative;
-  min-height: calc(100vh - 120px); /* Обеспечиваем, чтобы основной контейнер занимал всю доступную высоту */
+  min-height: calc(100vh - 120px); 
 }
 .bgImg {
   position: fixed;

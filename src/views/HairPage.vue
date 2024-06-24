@@ -48,6 +48,9 @@
               <v-card-text class="op">{{ product.description }}</v-card-text>
               <v-card-actions class="card-actions">
                 <v-btn class="button" @click.stop="addProductToCart(product)">Добавить в корзину</v-btn>
+                <v-btn icon @click.stop="toggleFavorite(product)" class="button-fav">
+                  <v-icon>{{ isFavorite(product) ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
+                </v-btn>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -173,7 +176,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['cartItems', 'cartTotal', 'calculateItemTotal']), // Подключаем calculateItemTotal
+    ...mapGetters(['cartItems', 'cartTotal', 'calculateItemTotal', 'favoriteItems']), 
     filteredProducts() {
       let filtered = this.products;
 
@@ -193,10 +196,20 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['addToCart']),
+    ...mapActions(['addToCart', 'addToFavorites', 'removeFromFavorites']),
     addProductToCart(product) {
       this.addToCart(product);
       this.showPopupMessage(product);
+    },
+    toggleFavorite(product) {
+      if (this.isFavorite(product)) {
+        this.removeFromFavorites(product);
+      } else {
+        this.addToFavorites(product);
+      }
+    },
+    isFavorite(product) {
+      return this.favoriteItems.some(item => item.id === product.id);
     },
     goToProductDetail(id) {
       this.$router.push({ name: 'ProductDetail', params: { id } });
@@ -212,7 +225,16 @@ export default {
 };
 </script>
 
+
 <style scoped>
+
+.button-fav {
+  margin-left: 17px;
+  background-color: #937fbc;
+  color: white;
+  height: 35px;
+  width: 35px;
+}
 
 .span{
     color: #937fbc;
@@ -233,29 +255,29 @@ body {
 }
 
 .product-row {
-  margin-left: 0; /* Убирает отступ слева для ряда продуктов */
+  margin-left: 0; 
 }
 
 .product-col {
-  padding: 35px; /* Добавляет отступы вокруг каждой колонки */
+  padding: 35px;
 }
 
 .card {
   height: 500px;
-  width: 80%; /* Задает ширину карты в процентах от колонки */
+  width: 80%; 
   border-radius: 20px;
-  border: 2px solid #937fbc; /* Фиолетовая рамка */
-  transition: transform 0.3s ease; /* Плавная анимация */
+  border: 2px solid #937fbc;
+  transition: transform 0.3s ease;
 }
 
 .card:hover {
-  transform: scale(1.05); /* Увеличение карточки при наведении */
+  transform: scale(1.05); 
 }
 
 .card-actions {
   display: flex;
-  justify-content: center; /* Центрирует кнопку по горизонтали */
-  padding-bottom: 16px; /* Добавляет отступ снизу */
+  justify-content: center; 
+  padding-bottom: 16px; 
 }
 
 .button {
@@ -264,7 +286,7 @@ body {
 }
 
 .filter-col {
-  margin-right: 0; /* Убирает отступ справа от колонки фильтра */
+  margin-right: 0; 
 }
 
 .filter-card {
@@ -273,7 +295,7 @@ body {
   padding: 20px;
   border-radius: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-top: 24px; /* Убирает отступ сверху у фильтра */
+  margin-top: 24px; 
   height: 360px;
   margin-left: 100px;
 }
@@ -292,10 +314,10 @@ body {
 }
 
 .price {
-  font-size: 20px; /* Увеличивает размер текста цены */
-  font-weight: bold; /* Делает цену более заметной */
-  text-align: center; /* Центрирует цену */
-  margin-top: 10px; /* Добавляет отступ сверху для цены */
+  font-size: 20px; 
+  font-weight: bold; 
+  text-align: center; 
+  margin-top: 10px; 
 }
 
 .v-snackbar {

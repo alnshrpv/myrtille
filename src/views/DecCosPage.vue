@@ -43,11 +43,17 @@
           >
             <v-card class="card" @click="goToProductDetail(product.id)">
               <v-img :src="product.image" style="height: 300px;"></v-img>
-              <v-card-title>{{ product.name }}</v-card-title>
-              <v-card-subtitle class="price">{{ product.price }} ₽</v-card-subtitle>
+              <v-card-title style="justify-content: center;">{{ product.name }}</v-card-title>
+              <v-card-subtitle class="price">
+                  <span v-if="product.originalPrice" class="original-price">{{ product.originalPrice }} ₽</span>
+                  <span>{{ product.price }} ₽</span>
+                </v-card-subtitle>
               <v-card-text class="op">{{ product.description }}</v-card-text>
               <v-card-actions class="card-actions">
-                <v-btn class="button" @click="addProductToCart(product)">Добавить в корзину</v-btn>
+                <v-btn class="button" @click.stop="addProductToCart(product)">Добавить в корзину</v-btn>
+                <v-btn icon @click.stop="toggleFavorite(product)" class="button-fav">
+                  <v-icon>{{ isFavorite(product) ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
+                </v-btn>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -62,7 +68,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   data() {
@@ -91,6 +97,28 @@ export default {
           category: 1,
           sku: '12345',
             stock: 10,
+        },
+        {
+          id: 63,
+          name: 'CLARINS LIP OIL BALM ',
+          originalPrice: '1800',
+          price: '1000',
+          description: 'Оттеночный бальзам для губ',
+          image: '/sale/3.jpg',
+          category: 2,
+          sku: '12345',
+          stock: 10,
+        },
+        {
+          id: 64,
+          name: 'CLARINS OMBRE 4 COULEURS ',
+          originalPrice: '5000',
+          price: '4000',
+          description: 'Четырехцветные тени для век',
+          image: '/sale/4.jfif',
+          category: 1,
+          sku: '12345',
+          stock: 10,
         },
         {
           id: 13,
@@ -176,6 +204,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(['cartItems', 'cartTotal', 'calculateItemTotal', 'favoriteItems']), 
     filteredProducts() {
       let filtered = this.products;
 
@@ -195,10 +224,20 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['addToCart']),
+    ...mapActions(['addToCart', 'addToFavorites', 'removeFromFavorites']),
     addProductToCart(product) {
       this.addToCart(product);
       this.showPopupMessage(product);
+    },
+    toggleFavorite(product) {
+      if (this.isFavorite(product)) {
+        this.removeFromFavorites(product);
+      } else {
+        this.addToFavorites(product);
+      }
+    },
+    isFavorite(product) {
+      return this.favoriteItems.some(item => item.id === product.id);
     },
     goToProductDetail(id) {
       this.$router.push({ name: 'ProductDetail', params: { id } });
@@ -215,9 +254,27 @@ export default {
 </script>
 
 
-
 <style scoped>
 
+.original-price {
+    text-decoration: line-through;
+    color: red;
+    margin-right: 10px;
+  }
+
+.button-fav {
+  margin-left: 17px;
+  background-color: #937fbc;
+  color: white;
+  height: 35px;
+  width: 35px;
+}
+.span{
+    color: #937fbc;
+    margin-left: 62px;
+    top: 25px;
+    position: fixed;
+}
 .op {
   text-align: center;
 }
@@ -231,7 +288,7 @@ body {
 }
 
 .product-row {
-  margin-left: 0; 
+  margin-left: 0;
 }
 
 .product-col {
@@ -240,8 +297,14 @@ body {
 
 .card {
   height: 500px;
-  width: 80%; 
+  width: 80%;
   border-radius: 20px;
+  border: 2px solid #937fbc;
+  transition: transform 0.3s ease; 
+}
+
+.card:hover {
+  transform: scale(1.05);
 }
 
 .card-actions {
@@ -251,14 +314,16 @@ body {
 }
 
 .button {
-  background-color: #fac3af;
+  background-color: #937fbc;
+  color: white;
 }
 
 .filter-col {
-  margin-right: 0;
+  margin-right: 0; 
 }
 
 .filter-card {
+  border: 2px solid #937fbc;
   background-color: white;
   padding: 20px;
   border-radius: 20px;
@@ -282,9 +347,15 @@ body {
 }
 
 .price {
-  font-size: 20px;
-  font-weight: bold;
-  text-align: center;
+  font-size: 20px; 
+  font-weight: bold; 
+  text-align: center; 
   margin-top: 10px; 
+}
+
+.v-snackbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 </style>

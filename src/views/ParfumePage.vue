@@ -47,7 +47,10 @@
               <v-card-subtitle class="price">{{ product.price }} ₽</v-card-subtitle>
               <v-card-text class="op">{{ product.description }}</v-card-text>
               <v-card-actions class="card-actions">
-                <v-btn class="button" @click="addProductToCart(product)">Добавить в корзину</v-btn>
+                <v-btn class="button" @click.stop="addProductToCart(product)">Добавить в корзину</v-btn>
+                <v-btn icon @click.stop="toggleFavorite(product)" class="button-fav">
+                  <v-icon>{{ isFavorite(product) ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
+                </v-btn>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -62,7 +65,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   data() {
@@ -176,6 +179,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(['cartItems', 'cartTotal', 'calculateItemTotal', 'favoriteItems']), 
     filteredProducts() {
       let filtered = this.products;
 
@@ -195,10 +199,20 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['addToCart']),
+    ...mapActions(['addToCart', 'addToFavorites', 'removeFromFavorites']),
     addProductToCart(product) {
       this.addToCart(product);
       this.showPopupMessage(product);
+    },
+    toggleFavorite(product) {
+      if (this.isFavorite(product)) {
+        this.removeFromFavorites(product);
+      } else {
+        this.addToFavorites(product);
+      }
+    },
+    isFavorite(product) {
+      return this.favoriteItems.some(item => item.id === product.id);
     },
     goToProductDetail(id) {
       this.$router.push({ name: 'ProductDetail', params: { id } });
@@ -215,9 +229,22 @@ export default {
 </script>
 
 
-
 <style scoped>
 
+.button-fav {
+  margin-left: 17px;
+  background-color: #937fbc;
+  color: white;
+  height: 35px;
+  width: 35px;
+}
+
+.span{
+    color: #937fbc;
+    margin-left: 62px;
+    top: 25px;
+    position: fixed;
+}
 .op {
   text-align: center;
 }
@@ -229,6 +256,7 @@ export default {
 body {
   font-family: Montserrat;
 }
+
 .product-row {
   margin-left: 0; 
 }
@@ -239,8 +267,14 @@ body {
 
 .card {
   height: 500px;
-  width: 80%; /* Задает ширину карты в процентах от колонки */
+  width: 80%; 
   border-radius: 20px;
+  border: 2px solid #937fbc; 
+  transition: transform 0.3s ease; 
+}
+
+.card:hover {
+  transform: scale(1.05);
 }
 
 .card-actions {
@@ -250,14 +284,16 @@ body {
 }
 
 .button {
-  background-color: #fac3af;
+  background-color: #937fbc;
+  color: white;
 }
 
 .filter-col {
-  margin-right: 0;
+  margin-right: 0; 
 }
 
 .filter-card {
+  border: 2px solid #937fbc;
   background-color: white;
   padding: 20px;
   border-radius: 20px;
@@ -281,9 +317,15 @@ body {
 }
 
 .price {
-  font-size: 20px;
-  font-weight: bold;
-  text-align: center;
+  font-size: 20px; 
+  font-weight: bold; 
+  text-align: center; 
   margin-top: 10px; 
+}
+
+.v-snackbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 </style>

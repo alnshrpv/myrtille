@@ -2,7 +2,7 @@
   <v-container>
     <v-row justify="center">
       <v-col cols="12" sm="8" md="4">
-        <v-card>
+        <v-card class="card">
           <v-card-title>
             <span class="headline">Профиль пользователя</span>
           </v-card-title>
@@ -17,11 +17,25 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="primary" @click="logout">Выйти</v-btn>
+            <v-btn color="#715c9c" @click="logout">Выйти</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
+    <v-dialog v-model="showOverlay" persistent max-width="400">
+      <v-card>
+        <v-card-title class="text-h5">
+          <span>Добро пожаловать!</span>
+          <v-btn icon @click="closeOverlay" style="margin-left: 10px;
+    margin-top: -10px;">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+        <v-card-text>
+          Спасибо что выбрали наш магазин.
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -32,7 +46,8 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 export default {
   data() {
     return {
-      user: null
+      user: null,
+      showOverlay: false
     };
   },
   mounted() {
@@ -41,6 +56,7 @@ export default {
         const storedUser = JSON.parse(localStorage.getItem('user'));
         if (storedUser) {
           this.user = storedUser;
+          this.checkWelcomeOverlay();
         }
       } else {
         this.$router.push('/login');
@@ -48,9 +64,20 @@ export default {
     });
   },
   methods: {
+    checkWelcomeOverlay() {
+      const overlayShown = localStorage.getItem('overlayShown');
+      if (!overlayShown) {
+        this.showOverlay = true;
+        localStorage.setItem('overlayShown', 'true');
+      }
+    },
+    closeOverlay() {
+      this.showOverlay = false;
+    },
     async logout() {
       await signOut(auth);
       localStorage.removeItem('user');
+      localStorage.removeItem('overlayShown');
       this.$router.push('/login');
     }
   }
@@ -58,6 +85,14 @@ export default {
 </script>
 
 <style scoped>
+
+.card {
+  margin-top: 12px;
+  border: 2px solid #837bc4;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
 .user-photo {
   width: 100px;
   height: 100px;

@@ -1,1 +1,0 @@
-{"name":"dfdsf","surname":"fsdfs","email":"alnshrpv666@mail.ru","phone":"3233234","city":"sdcsdf","photo":"/uploads/1718107735963-938289223-avatar.png"}

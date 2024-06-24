@@ -1,13 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const cors = require('cors'); // Добавьте эту строку
+const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 
 const app = express();
 const PORT = 3000;
 
-app.use(cors()); // Добавьте эту строку
+app.use(cors());
 app.use(bodyParser.json());
 
 app.post('/save-user', (req, res) => {

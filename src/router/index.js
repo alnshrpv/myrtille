@@ -7,9 +7,14 @@ import CareCosPage from '../views/CareCosPage.vue';
 import HairPage from '../views/HairPage.vue';
 import DecCosPage from '../views/DecCosPage.vue';
 import ParfumePage from '../views/ParfumePage.vue';
-import OtzvPage from '@/views/OtzvPage.vue';
 import ProductDetail from '@/components/ProductDetail';
 import UserProfile from '../views/UserProfile.vue'; 
+import ThankYouPage from '../views/ThankYouPage.vue'
+import FavPage from '@/views/FavPage.vue';
+import CardBn from '@/views/CardBn.vue';
+import StorePg from '@/views/StorePg.vue';
+import SalePage from '@/views/SalePage.vue';
+import ActPage from '@/views/ActPage.vue';
 
 const routes = [
   {
@@ -52,16 +57,45 @@ const routes = [
     component: ParfumePage
   },
   {
-    path: '/otzv',
-    name: 'Otzv',
-    component: OtzvPage
-  },
-  {
     path: '/product/:id',
     name: 'ProductDetail',
-    component: ProductDetail
+    component: ProductDetail,
+    props: true
   },
-  { path: '/user-profile', name: 'UserProfile', component: UserProfile }
+  { path: '/user-profile', 
+    name: 'UserProfile', 
+    component: UserProfile },
+  {
+    path: '/thank-you',
+    name: 'ThankYou',
+    component: ThankYouPage
+  },
+  {
+    path: '/favorites',
+    name: 'FavPage',
+    component: FavPage
+  },
+  {
+    path: '/gift-cards',
+    name: 'CardBn',
+    component: CardBn
+  },
+  {
+    path: '/stores',
+    name: 'StorePg',
+    component: StorePg
+  },
+  {
+    path: '/discounts',
+    name: 'SalePage',
+    component: SalePage
+  },
+  {
+    path: '/promotions',
+    name: 'ActPage',
+    component: ActPage
+  },
+  
 ];
 
 const router = createRouter({
